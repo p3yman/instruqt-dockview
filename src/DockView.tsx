@@ -82,6 +82,16 @@ export const DockView: React.FC = (props: { theme?: string }) => {
     });
 
     event.api.addPanel({
+      id: "fun",
+      component: "iframe",
+      title: "Fun 😁",
+      params: {
+        title: "Documentation",
+        url: "http://www.youtube.com/embed/oHg5SJYRHA0?autoplay=1",
+      },
+    });
+
+    event.api.addPanel({
       id: "assignment",
       component: "assignment",
       title: "Assignment",
