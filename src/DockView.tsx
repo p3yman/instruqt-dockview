@@ -10,6 +10,14 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import example from "./example.md?raw";
+import { memo } from "react";
+import { HoistedDockviewPanel } from "./HoistedDockviewPanel";
+
+const IframeComponent = memo((props: IDockviewPanelProps<{ url: string }>) => {
+  return (
+    <iframe src={props.params.url} style={{ width: "100%", height: "100%" }} />
+  );
+});
 
 const components = {
   default: (props: IDockviewPanelProps<{ title: string }>) => {
@@ -19,14 +27,31 @@ const components = {
       </div>
     );
   },
-  iframe: (props: IDockviewPanelProps<{ url: string }>) => {
-    return (
-      <iframe
-        src={props.params.url}
-        style={{ width: "100%", height: "100%" }}
-      />
-    );
-  },
+  // iframe: (props: IDockviewPanelProps<{ url: string }>) => {
+  //   return (
+  //     <iframe
+  //       key={props.params.url}
+  //       src={props.params.url}
+  //       style={{
+  //         width: "100%",
+  //         height: "100%",
+  //       }}
+  //     />
+  //   );
+  // },
+  iframe: HoistedDockviewPanel(
+    (props: IDockviewPanelProps<{ url: string }>) => {
+      return (
+        <iframe
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+          src={props.params.url}
+        />
+      );
+    }
+  ),
   editor: (props: IDockviewPanelProps<{ value: string }>) => {
     return (
       <Editor
