@@ -5,12 +5,42 @@ import {
   DockviewDefaultTab,
   IDockviewPanelHeaderProps,
 } from "dockview";
+import Editor from "@monaco-editor/react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+import example from "./example.md?raw";
 
 const components = {
   default: (props: IDockviewPanelProps<{ title: string }>) => {
     return (
       <div style={{ padding: "20px", color: "white" }}>
         {props.params.title}
+      </div>
+    );
+  },
+  iframe: (props: IDockviewPanelProps<{ url: string }>) => {
+    return (
+      <iframe
+        src={props.params.url}
+        style={{ width: "100%", height: "100%" }}
+      />
+    );
+  },
+  editor: (props: IDockviewPanelProps<{ value: string }>) => {
+    return (
+      <Editor
+        height="90vh"
+        defaultLanguage="bash"
+        defaultValue={props.params.value}
+        theme="vs-dark"
+      />
+    );
+  },
+  assignment: (props: IDockviewPanelProps<{ value: string }>) => {
+    return (
+      <div className="p-4 prose prose-invert max-w-none">
+        <Markdown remarkPlugins={[remarkGfm]}>{props.params.value}</Markdown>
       </div>
     );
   },
@@ -33,41 +63,33 @@ export const DockView: React.FC = (props: { theme?: string }) => {
   const screenW = window.innerWidth;
   const onReady = (event: DockviewReadyEvent) => {
     const first = event.api.addPanel({
-      id: "terminal",
-      component: "default",
+      id: "editor",
+      component: "editor",
       title: "Terminal",
       params: {
-        title: "Terminal",
+        value: "// start coding here\n",
       },
     });
 
     event.api.addPanel({
       id: "docs",
-      component: "default",
+      component: "iframe",
       title: "Documentation",
       params: {
         title: "Documentation",
-      },
-    });
-
-    event.api.addPanel({
-      id: "terminal-2",
-      component: "default",
-      title: "Terminal 2",
-      params: {
-        title: "Terminal 2",
+        url: "https://en.wikipedia.org/wiki/Main_Page",
       },
     });
 
     event.api.addPanel({
       id: "assignment",
-      component: "default",
+      component: "assignment",
       title: "Assignment",
       params: {
-        title: "Assignment",
+        value: example,
       },
       tabComponent: "tabComponentWithoutClose",
-      position: { referencePanel: "terminal-2", direction: "right" },
+      position: { referencePanel: first.id, direction: "right" },
     });
 
     // Bottom
@@ -77,7 +99,7 @@ export const DockView: React.FC = (props: { theme?: string }) => {
       params: {
         title: "Attempts",
       },
-      position: { referencePanel: "terminal", direction: "below" },
+      position: { referencePanel: first.id, direction: "below" },
     });
     attempts.api.setTitle("Attempts");
     attempts.api.setSize({ width: screenW * 0.7, height: 300 });
