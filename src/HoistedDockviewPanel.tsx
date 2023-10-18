@@ -1,5 +1,6 @@
 import { IDockviewPanelProps } from "dockview";
 import * as React from "react";
+import { useEffect, useRef } from "react";
 import * as ReactDOM from "react-dom";
 
 // get absolute position of element allowing for scroll position
@@ -26,8 +27,10 @@ export const HoistedDockviewPanel = <T extends object>(
   DockviewPanelComponent: React.FC<IDockviewPanelProps<T>>
 ) => {
   return (props: IDockviewPanelProps<T>) => {
-    const ref = React.useRef<HTMLDivElement>(null);
-    const innerRef = React.useRef<HTMLDivElement>(null);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const ref = useRef<HTMLDivElement>(null);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const innerRef = useRef<HTMLDivElement>(null);
 
     const positionHoistedPanel = () => {
       if (!ref.current || !innerRef.current) {
@@ -44,7 +47,8 @@ export const HoistedDockviewPanel = <T extends object>(
       innerRef.current.style.width = `${width}px`;
     };
 
-    React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
       if (!innerRef.current) {
         return;
       }
