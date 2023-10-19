@@ -24,7 +24,7 @@ export const Header = () => {
         <button>
           <RiFileTextLine className="text-white" />
         </button>
-        <Timer value={90} />
+        <Timer value={35} />
       </div>
     </header>
   );

@@ -21,8 +21,10 @@ export const Timer = ({ value }: { value: number }) => {
     if (seconds >= 60) {
       const minutes = Math.floor(seconds / 60);
       return `${minutes}m`;
-    } else {
+    } else if (seconds > 0) {
       return `${seconds}s`;
+    } else {
+      return "Expired";
     }
   };
 
