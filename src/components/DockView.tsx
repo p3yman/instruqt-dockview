@@ -101,11 +101,11 @@ export const DockView: React.FC = (props: { theme?: string }) => {
       title: "Fun 😁",
       params: {
         title: "Documentation",
-        url: "https://www.youtube.com/embed/oHg5SJYRHA0?autoplay=1",
+        url: "https://www.youtube.com/embed/oHg5SJYRHA0",
       },
     });
 
-    event.api.addPanel({
+    const assignment = event.api.addPanel({
       id: "assignment",
       component: "assignment",
       title: "Assignment",
@@ -115,6 +115,7 @@ export const DockView: React.FC = (props: { theme?: string }) => {
       tabComponent: "tabComponentWithoutClose",
       position: { referencePanel: first.id, direction: "right" },
     });
+    assignment.group.locked = true;
 
     // Bottom
     const attempts = event.api.addPanel({
