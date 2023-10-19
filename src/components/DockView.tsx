@@ -9,8 +9,9 @@ import Editor from "@monaco-editor/react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import example from "./example.md?raw";
+import example from "../example.md?raw";
 import { HoistedDockviewPanel } from "./HoistedDockviewPanel";
+import { RightHeaderActionsComponent } from "./RightHeaderActionsComponent";
 
 const components = {
   default: (props: IDockviewPanelProps<{ title: string }>) => {
@@ -50,6 +51,13 @@ const components = {
       </div>
     );
   },
+  terminal: (props: IDockviewPanelProps<{ title: string }>) => {
+    return (
+      <div className="p-8">
+        <h1 className="text-4xl">{props.params.title}</h1>
+      </div>
+    );
+  },
 };
 
 const defaultTabComponent = (props: IDockviewPanelHeaderProps) => {
@@ -71,7 +79,7 @@ export const DockView: React.FC = (props: { theme?: string }) => {
     const first = event.api.addPanel({
       id: "editor",
       component: "editor",
-      title: "Terminal",
+      title: "Editor",
       params: {
         value: "// start coding here\n",
       },
@@ -149,6 +157,7 @@ export const DockView: React.FC = (props: { theme?: string }) => {
       tabComponents={tabComponents}
       onReady={onReady}
       className={props.theme || "dockview-theme-abyss"}
+      leftHeaderActionsComponent={RightHeaderActionsComponent}
     />
   );
 };
