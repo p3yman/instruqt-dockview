@@ -6,6 +6,10 @@ import { RiLayout6Fill } from "react-icons/ri";
 import { RiFileTextLine } from "react-icons/ri";
 
 export const Header = () => {
+  const onReset = () => {
+    window.dispatchEvent(new Event("clearLayout"));
+  };
+
   return (
     <header className="w-full flex items-center justify-between px-4 bg-gray-900 border-b border-b-gray-950 h-16">
       <a
@@ -16,7 +20,7 @@ export const Header = () => {
       </a>
       <div className="flex gap-4">
         <button>
-          <FaArrowRotateRight className="text-white" />
+          <FaArrowRotateRight className="text-white" onClick={onReset} />
         </button>
         <button>
           <RiLayout6Fill className="text-white" />

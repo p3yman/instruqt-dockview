@@ -4,6 +4,7 @@ import {
   IDockviewPanelProps,
   DockviewDefaultTab,
   IDockviewPanelHeaderProps,
+  DockviewApi,
 } from "dockview";
 import Editor from "@monaco-editor/react";
 import Markdown from "react-markdown";
@@ -12,6 +13,7 @@ import remarkGfm from "remark-gfm";
 import example from "../example.md?raw";
 import { HoistedDockviewPanel } from "./HoistedDockviewPanel";
 import { RightHeaderActionsComponent } from "./RightHeaderActionsComponent";
+import { useEffect, useState } from "react";
 
 const components = {
   default: (props: IDockviewPanelProps<{ title: string }>) => {
@@ -73,83 +75,139 @@ const tabComponents = {
   tabComponentWithoutClose,
 };
 
-export const DockView: React.FC = (props: { theme?: string }) => {
+const createDefaultLayout = (api: DockviewApi) => {
   const screenW = window.innerWidth;
-  const onReady = (event: DockviewReadyEvent) => {
-    const first = event.api.addPanel({
-      id: "editor",
-      component: "editor",
-      title: "Editor",
-      params: {
-        value: "// start coding here\n",
-      },
-    });
 
-    event.api.addPanel({
-      id: "docs",
-      component: "iframe",
+  const first = api.addPanel({
+    id: "editor",
+    component: "editor",
+    title: "Editor",
+    params: {
+      value: "// start coding here\n",
+    },
+  });
+
+  api.addPanel({
+    id: "docs",
+    component: "iframe",
+    title: "Documentation",
+    params: {
       title: "Documentation",
-      params: {
-        title: "Documentation",
-        url: "https://en.wikipedia.org/wiki/Main_Page",
-      },
-    });
+      url: "https://en.wikipedia.org/wiki/Main_Page",
+    },
+  });
 
-    event.api.addPanel({
-      id: "fun",
-      component: "iframe",
-      title: "Fun 😁",
-      params: {
-        title: "Documentation",
-        url: "https://www.youtube.com/embed/oHg5SJYRHA0",
-      },
-    });
+  api.addPanel({
+    id: "fun",
+    component: "iframe",
+    title: "Fun 😁",
+    params: {
+      title: "Documentation",
+      url: "https://www.youtube.com/embed/oHg5SJYRHA0",
+    },
+  });
 
-    const assignment = event.api.addPanel({
-      id: "assignment",
-      component: "assignment",
-      title: "Assignment",
-      params: {
-        value: example,
-      },
-      tabComponent: "tabComponentWithoutClose",
-      position: { referencePanel: first.id, direction: "right" },
-    });
-    assignment.group.locked = true;
+  const assignment = api.addPanel({
+    id: "assignment",
+    component: "assignment",
+    title: "Assignment",
+    params: {
+      value: example,
+    },
+    tabComponent: "tabComponentWithoutClose",
+    position: { referencePanel: first.id, direction: "right" },
+  });
+  assignment.group.locked = true;
 
-    // Bottom
-    const attempts = event.api.addPanel({
-      id: "attempts",
-      component: "default",
-      params: {
-        title: "Attempts",
-      },
-      position: { referencePanel: first.id, direction: "below" },
-    });
-    attempts.api.setTitle("Attempts");
-    attempts.api.setSize({ width: screenW * 0.7, height: 300 });
+  // Bottom
+  const attempts = api.addPanel({
+    id: "attempts",
+    component: "default",
+    params: {
+      title: "Attempts",
+    },
+    position: { referencePanel: first.id, direction: "below" },
+  });
+  attempts.api.setTitle("Attempts");
+  attempts.api.setSize({ width: screenW * 0.7, height: 300 });
 
-    event.api.addPanel({
-      id: "output",
+  api.addPanel({
+    id: "output",
+    title: "Output",
+    component: "default",
+    params: {
       title: "Output",
-      component: "default",
-      params: {
-        title: "Output",
-      },
-    });
+    },
+  });
 
-    event.api.addPanel({
-      id: "debug console",
+  api.addPanel({
+    id: "debug console",
+    title: "Debug Console",
+    component: "default",
+    params: {
       title: "Debug Console",
-      component: "default",
-      params: {
-        title: "Debug Console",
-      },
-    });
+    },
+  });
 
-    // Set first as active
-    attempts.api.setActive();
-    first.api.setActive();
+  // Set first as active
+  attempts.api.setActive();
+  first.api.setActive();
+};
+
+export const DockView: React.FC = (props: { theme?: string }) => {
+  const [api, setApi] = useState<DockviewApi>();
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    api.onDidLayoutChange(() => {
+      const layout = api.toJSON();
+
+      localStorage.setItem(
+        "dockview_persistance_layout",
+        JSON.stringify(layout)
+      );
+    });
+  }, [api]);
+
+  const clearLayout = () => {
+    localStorage.removeItem("dockview_persistance_layout");
+    if (api) {
+      api.clear();
+      createDefaultLayout(api);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("clearLayout", clearLayout);
+
+    return () => {
+      window.removeEventListener("clearLayout", clearLayout);
+    };
+  });
+
+  const onReady = (event: DockviewReadyEvent) => {
+    const layoutString = localStorage.getItem("dockview_persistance_layout");
+
+    let success = false;
+
+    if (layoutString) {
+      try {
+        const layout = JSON.parse(layoutString);
+        event.api.fromJSON(layout);
+        success = true;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    if (!success) {
+      createDefaultLayout(event.api);
+    }
+
+    setApi(event.api);
   };
 
   return (
